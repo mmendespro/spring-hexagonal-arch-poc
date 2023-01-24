@@ -1,0 +1,81 @@
+@startuml ClassDiagram
+package "application.ports.incoming" {
+    interface CreateAccountUseCase {
+        +create(id: Long, balance: float): void
+    }
+    interface DepositUseCase {
+        +deposit(id: Long, amount: float): void
+    }
+    interface WithdrawUseCase {
+        +withdraw(id: Long, amount: float): void
+    }
+    interface VerifyBalanceUseCase {
+        +showBalance(id: Long): float
+    }
+}
+package "application.ports.outgoing" {
+    interface LoadAccountPort{
+        +load(id: Long): Optional<Account>
+    }
+    interface SaveAccountPort {
+        +save(bankAccount: Account): void
+    }
+}
+package "application.domain.entities" {
+    class Account {
+        -{field} accountId: Long;
+        -{field} balance: Money;
+        -hasFund(value: float): boolean
+        +withdraw(value: float): void
+        +deposit(value: float): void
+    }
+}
+package "application.domain.valueObjects" {
+    class Money {
+        -{field} value: float;
+        +increase(value: float): void
+        +decrease(value: float): void
+    }
+}
+package "application.services" {
+    class BankAccountService implements CreateAccountUseCase, DepositUseCase, WithdrawUseCase, VerifyBalanceUseCase {
+        -{field} loadAccountPort: LoadAccountPort
+        -{field} saveAccountPort: SaveAccountPort
+        +create(id: Long, balance: float): void
+        +deposit(id: Long, amount: float): void
+        +withdraw(id: Long, amount: float): void
+        +showBalance(id: Long): float
+    }
+}
+package "infra.repository" {
+    interface BankAccountH2Repository extends JpaRepository {}
+    
+    class BankAccountRepository implements LoadAccountPort, SaveAccountPort {
+        -{field} repository: BankAccountH2Repository
+        +save(bankAccount: Account): void
+        +load(id: Long): Optional<Account>
+    }
+}
+package "adapters.rest" {
+    class BankAccountController {
+        -{field} depositUseCase: DepositUseCase
+        -{field} withdrawUseCase: WithdrawUseCase
+        -{field} createAccountUseCase: CreateAccountUseCase
+        -{field} verifyBalanceUseCase: VerifyBalanceUseCase
+        +create(id: Long, balance: float): void
+        +deposit(id: Long, amount: float): void
+        +withdraw(id: Long, amount: float): void
+        +showBalance(id: Long): float
+    }
+}
+Account --> Money
+BankAccountController --* DepositUseCase
+BankAccountController --* WithdrawUseCase
+BankAccountController --* CreateAccountUseCase
+BankAccountController --* VerifyBalanceUseCase
+
+BankAccountService --* LoadAccountPort
+BankAccountService --* SaveAccountPort
+BankAccountService --> Account
+BankAccountRepository --* BankAccountH2Repository 
+@enduml

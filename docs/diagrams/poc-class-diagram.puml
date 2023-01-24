@@ -1,0 +1,46 @@
+@startuml "POC Class Diagram"
+interface DepositUseCase {
+    +void deposit(id:Long, amount:float)
+}
+interface WithdrawUseCase {
+    +void withdraw(id:Long, amount:float)
+}
+interface LoadAccountPort{
+    +Optional<Account> load(Long id)
+}
+interface SaveAccountPort {
+    +void save(Account bankAccount)
+}
+class Money {
+    -{field} value: float
+}
+class Account {
+    -{field} accountId: Long;
+    -{field} accountActive: boolean;
+    -{field} balance: Money;
+}
+class BankAccountRepository implements LoadAccountPort, SaveAccountPort {
+    -{field} inMemoryDB: Map<Long,Account>
+    +Optional<Account> load(Long id)
+    +void save(Account bankAccount)
+} 
+class BankAccountService implements DepositUseCase, WithdrawUseCase {
+    -{field} loadAccountPort : LoadAccountPort
+    -{field} saveAccountPort : SaveAccountPort
+    +Optional<Account> load(Long id)
+    +void save(Account bankAccount)
+}
+class BankAccountController {
+    -{field} depositUseCase : DepositUseCase
+    -{field} withdrawUseCase : WithdrawUseCase
+    +deposit(id:Long, amount:float)
+    +withdraw(id:Long, amount:float)
+}
+
+BankAccountController --> DepositUseCase
+BankAccountController --> WithdrawUseCase
+BankAccountService --> LoadAccountPort
+BankAccountService --> SaveAccountPort
+BankAccountService --> Account
+Account --> Money
+@enduml

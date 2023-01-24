@@ -1,0 +1,49 @@
+@startuml "test-class-diagram"
+class Account {
+    -{field} accountId: Long
+    -{field} balance: float
+    +increase(value: float)
+    +decrease(value: float)
+}
+interface DepositUsecase {
+    +deposit(accountId: Long, amount: float): void
+}
+interface WithdrawUsecase {
+    +withdraw(accountId: Long, amount: float): void
+}
+interface TransferUsecase {
+    +transfer(fromAccountId: Long, toAccountId: Long, amount: float): void
+}
+interface LoadAccountPort {
+    +load(accountId: Long): Account
+}
+interface SaveAccountPort {
+    +save(account: Account): void
+}
+class BankAccountController {
+    -{field} depositUsecase: DepositUsecase
+    -{field} withdrawUsecase: WithdrawUsecase
+    -{field} transferUsecase: TransferUsecase
+    +deposit(accountId: Long, amount: float)
+    +withdraw(accountId: Long, amount: float)
+    +transfer(fromAccountId: Long, toAccountId: Long, amount: float): void
+}
+class BankAccountService implements DepositUsecase, WithdrawUsecase, TransferUsecase {
+    -{field} loadAccountPort: LoadAccountPort
+    -{field} saveAccountPort: SaveAccountPort
+    +deposit(accountId: Long, amount: float): void
+    +withdraw(accountId: Long, amount: float): void
+    +transfer(fromAccountId: Long, toAccountId: Long, amount: float): void
+}
+class BankAccountRepository implements LoadAccountPort, SaveAccountPort {
+    +load(accountId: Long): Account
+    +save(account: Account): void
+}
+BankAccountController --> DepositUsecase
+BankAccountController --> WithdrawUsecase
+BankAccountController --> TransferUsecase
+BankAccountService --> LoadAccountPort
+BankAccountService --> SaveAccountPort
+BankAccountService --> Account
+BankAccountRepository --> Account
+@enduml
