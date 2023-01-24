@@ -6,7 +6,7 @@ O núcleo de negócios interage com outros componentes por meio de portas e adap
 ![](./imgs/HexagonalArchitecture-generic.png)
 
 Logo abaixo segue o modelo proposto para essa POC levando em consideração o modelo lógico/estrutural apresentado na imagem acima.
-
+ 
 ![](./imgs/HexagonalArchitecture-impl.png)
 
 Abaixo o diagrama de classes 
